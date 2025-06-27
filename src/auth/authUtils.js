@@ -4,13 +4,13 @@ const JWT = require('jsonwebtoken');
 const createTokenPair = async(payload, publicKey, privateKey) => {
     try{
         //Tạo access token  
-        const accessToken = await JWT.sign(payload, privateKey, {
-            algorithm: 'RS256', // Sử dụng thuật toán RS256
+        const accessToken = await JWT.sign(payload, publicKey, {
+            // algorithm: 'RS256' ,Sử dụng thuật toán RS256
             expiresIn: '1h', // Thời gian hết hạn của access token
         })
         
         const refreshToken = await JWT.sign(payload, privateKey, {
-            algorithm: 'RS256', // Sử dụng thuật toán RS256
+            // algorithm: 'RS256', // Sử dụng thuật toán RS256
             expiresIn: '1 days', // Thời gian hết hạn của refresh token
         })
 

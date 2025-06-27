@@ -31,40 +31,47 @@ const signUpService = async ({ name, email, password }) => {
 
     if (newShop) {
       //create public key, private key
-      const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-          type: "pkcs1",
-          format: "pem",
-        },
-        privateKeyEncoding: {
-          type: "pkcs1",
-          format: "pem",
-        },
-      });
+      // const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+      //   modulusLength: 4096,
+      //   publicKeyEncoding: {
+      //     type: "pkcs1",
+      //     format: "pem",
+      //   },
+      //   privateKeyEncoding: {
+      //     type: "pkcs1",
+      //     format: "pem",
+      //   },
+      // });
+
+      //Không dùng thuật toán RSA 
+      const privateKey = crypto.randomBytes(64).toString("hex");
+      const publicKey = crypto.randomBytes(64).toString("hex");
       console.log({ privateKey, publicKey });
 
-      const publicKeyString = await createKeyToken({
+      const keyTokens = await createKeyToken({
         userId: newShop._id,
         publicKey,
+        privateKey
       });
-      if (!publicKeyString) {
+      if (!keyTokens) {
         return {
           code: "xxx",
-          message: "publicKeyString error",
+          message: "keyTokens error",
         };
       }
 
       //Chuyển về  object publicKey
-      const publicKeyObject = crypto.createPublicKey(publicKeyString);
-      console.log(`Public Key Object: `, publicKeyObject);
+
+      // const publicKeyObject = crypto.createPublicKey(publicKeyString);
+      // console.log(`Public Key Object: `, publicKeyObject);
+
       //Gọi hàm lưu vảo tokens
       const tokens = await createTokenPair(
         {
           userId: newShop._id,
           email,
         },
-        publicKeyString,
+        publicKey,
         privateKey
       );
       console.log(`Created Token Success: `, tokens);
