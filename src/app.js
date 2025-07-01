@@ -23,6 +23,18 @@ app.use('/', require('./routes/auth.routes'));
 app.post('/shop/signup', require('./controllers/shop.controller').signUp);
 
 //init error handler
+app.use((req, res, next) => {
+    const err = 'Not Found'
+    err.status = 404
+    next(err)
+})
+
+app.use((err, req, res, next) => {
+    return res.status(err.status || 500).json({
+        message: err.message || 'Internal Server Error',
+        status: 'error'
+    });
+})
 
 app.get('/', (req, res) => {
     const strCompress = "Hello World!";

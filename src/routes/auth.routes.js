@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { checkApiKey, checkPermission } = require('../auth/checkAuth');
+const { checkApiKey, checkPermission, asyncHandler } = require('../auth/checkAuth');
 const router = express.Router();
 
 
@@ -18,6 +18,6 @@ router.get('/', (req, res) => {
         // metadata : strCompress.repeat(1000)
     });
 }) 
-router.post('/shop/signup', require('../controllers/shop.controller').signUp);
+router.post('/shop/signup', asyncHandler(require('../controllers/shop.controller').signUp));
 
 module.exports = router

@@ -10,15 +10,15 @@ const crypto = require("crypto");
 const { createKeyToken } = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
 const { getInfoData } = require("../utils");
+const {
+  badRequestError,
+  conflictRequestError,
+} = require("../middlewares/error.res");
 const signUpService = async ({ name, email, password }) => {
   try {
     const holderShop = await shopModel.findOne({ email }).lean();
     if (holderShop) {
-      return {
-        code: "xxx",
-        metadata: "Email already exists",
-        status: "error",
-      };
+      return badRequestError('Shop is already registered with this email');
     }
 
     const passwordHash = await bycrypt.hash(password, 10);
@@ -43,7 +43,7 @@ const signUpService = async ({ name, email, password }) => {
       //   },
       // });
 
-      //Không dùng thuật toán RSA 
+      //Không dùng thuật toán RSA
       const privateKey = crypto.randomBytes(64).toString("hex");
       const publicKey = crypto.randomBytes(64).toString("hex");
       console.log({ privateKey, publicKey });
@@ -51,13 +51,10 @@ const signUpService = async ({ name, email, password }) => {
       const keyTokens = await createKeyToken({
         userId: newShop._id,
         publicKey,
-        privateKey
+        privateKey,
       });
       if (!keyTokens) {
-        return {
-          code: "xxx",
-          message: "keyTokens error",
-        };
+        return badRequestError("Error: Failed to create key tokens");
       }
 
       //Chuyển về  object publicKey
@@ -79,16 +76,12 @@ const signUpService = async ({ name, email, password }) => {
       return {
         code: 201,
         metadata: {
-          shop: getInfoData({fields : ['_id','name'],object:newShop}),
+          shop: getInfoData({ fields: ["_id", "name"], object: newShop }),
           tokens,
         },
       };
     }
-    return {
-      code: 200,
-      metadata: "Shop creation failed",
-      status: "error",
-    };
+    return badRequestError("Shop creation failed");
   } catch (error) {
     return {
       code: "xxx",
